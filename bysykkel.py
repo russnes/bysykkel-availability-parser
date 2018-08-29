@@ -5,10 +5,13 @@ import sys
 def request(endpoint):
     url = API_ROOT+endpoint
     headers = {'Client-Identifier':IDENTIFIER}
-    return requests.get(url, headers = headers)
+    response = requests.get(url, headers = headers).json()
+    if(response.get("error") != None):
+        raise Exception(response.get("error"))
+    return response
 
 def loadStationsIntoMap():
-    stations = request("stations").json().get("stations")
+    stations = request("stations").get("stations")
     mapToLoad = {}
     for station in stations:
         mapToLoad[station.get("id")] = station
@@ -43,7 +46,7 @@ IDENTIFIER = sys.argv[1]
 
 stationsMap = loadStationsIntoMap()
 
-availability = request("stations/availability").json().get("stations")
+availability = request("stations/availability").get("stations")
 
 unknownStationAvailabilities = list()
 knownStationAvailabilities = {}
